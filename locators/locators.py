@@ -1,10 +1,10 @@
 class Locators:
 
-    username_input_id = "username"
-    fullname_input_id = "fullname"
-    email_input_id = "email"
-    password1_input_id = "password1"
+    username_input_id = 'username'
+    fullname_input_id = 'fullname'
+    email_input_id = 'email'
+    password1_input_id = 'password1'
 
-    showPassword_checkbox_id = "showPassword"
+    checkbox_class_name = 'Checkbox-text'
 
-    submit_input_name = "Submit"
+    submit_input_name = 'Submit'
