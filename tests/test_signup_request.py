@@ -19,7 +19,7 @@ def clear_user(user):
     driver = webdriver.Chrome()
     driver.implicitly_wait(10)
     driver.get('http://localhost:8080/login')
-    password = 'd68bbc156f274de1b970dacd03180b98'
+    password = 'PASSWORD'
 
     driver.find_element_by_id('j_username').send_keys('admin')
     driver.find_element_by_name('j_password').send_keys(password)

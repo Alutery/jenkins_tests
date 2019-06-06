@@ -1,18 +1,8 @@
 import requests
-import pytest
-import string
-import random
 
 
 url = 'http://localhost:8080/j_acegi_security_check'
-headers = {
-    'content-type': 'application/x-www-form-urlencoded'
-}
-
-
-# def random_string(string_length=10):
-#     letters = string.ascii_lowercase
-#     return ''.join(random.choice(letters) for _ in range(string_length))
+headers = {'content-type': 'application/x-www-form-urlencoded'}
 
 
 def create_data(j_username, j_password, from_input='/'):
