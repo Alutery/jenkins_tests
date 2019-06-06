@@ -26,4 +26,4 @@ class SignupPage:
         self.driver.find_element_by_name(Locators.submit_input_name).click()
 
     def click_show_password(self):
-        self.driver.find_element_by_name(Locators.showPassword_checkbox_id).click()
+        self.driver.find_element_by_class_name(Locators.checkbox_class_name).click()
