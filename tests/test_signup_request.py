@@ -1,5 +1,4 @@
 import requests
-import pytest
 import string
 import random
 
@@ -11,6 +10,28 @@ headers = {'content-type': 'application/x-www-form-urlencoded'}
 def random_string(string_length=10):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for _ in range(string_length))
+
+
+def clear_user(user):
+    from selenium import webdriver
+    import time
+
+    driver = webdriver.Chrome()
+    driver.implicitly_wait(10)
+    driver.get('http://localhost:8080/login')
+    password = 'd68bbc156f274de1b970dacd03180b98'
+
+    driver.find_element_by_id('j_username').send_keys('admin')
+    driver.find_element_by_name('j_password').send_keys(password)
+    driver.find_element_by_name('Submit').click()
+
+    url_tmp = 'http://localhost:8080/securityRealm/user/' + user + '/delete'
+    driver.get(url_tmp)
+    driver.find_element_by_id('yui-gen2-button').click()
+
+    time.sleep(5)
+    driver.close()
+    driver.quit()
 
 
 def create_data(username, fullname, email, password1):
@@ -27,68 +48,76 @@ def create_data(username, fullname, email, password1):
     return data
 
 
+def test_response_code_200():
+    response = requests.get('http://localhost:8080/signup')
+    assert response.status_code == 200
+
+
 def test_success():
-    data = create_data("user" + random_string(), "ansafinaa", "qwerty@qwerty.ru", "q")
+    username = "user" + random_string()
+    data = create_data(username, "User Test", "test@mail.ru", "1234")
 
     response = requests.post(url, params=data, headers=headers)
-    print(response.text)
 
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'text/html;charset=utf-8'
+    assert "Success" in response.text
 
-
-def test_response_code_200():
-    response = requests.get(url)
-    assert response.status_code == 200
-
-
-def test_if_is_form_in_contact_page():
-    pass
-    # response = get_ulr_links('https://www.mulhergorila.com/contato/')
-    # form = response.html.find('#gform_1', first=True)
-    # assert 'Nome*\nE-mail*\nTelefone\nMensagem*' == form.text
-
-
-# def test_password_not_match():
-#     data = create_data("ansafinaa", "ansafinaa", "qwerty@qwerty.ru", "q", "qq")
-#
-#     response = requests.post(url, json=data, headers=headers)
-#
-#     print(response.headers)
-#     print()
-#     print(response.text)
-#
-#     assert response.status_code == 200
-#     assert response.headers['Content-Type'] == 'text/html;charset=utf-8'
+    clear_user(username)
 
 
 def test_invalid_email():
-    data = create_data("ansafinaa", "ansafinaa", "qwertyqwertyru", "q")
+    data = create_data("user" + random_string(), "User Test", "test", "1234")
     response = requests.post(url, params=data, headers=headers)
 
+    assert response.status_code == 200
     assert "Email - Invalid e-mail address" in response.text
 
 
-def test_invalid_username():
-    data = create_data("\\", "ansafinaa", "qwertyqwertyru", "q")
+def test_empty_email():
+    data = create_data("user" + random_string(), "User Test", "", "1234")
     response = requests.post(url, params=data, headers=headers)
 
+    assert response.status_code == 200
+    assert "Email - Invalid e-mail address" in response.text
+
+
+def test_existed_username():
+    data = create_data("User1", "User Test", "test@mail.ru", "1234")
+    response = requests.post(url, params=data, headers=headers)
+
+    assert response.status_code == 200
+    assert 'Username - User name is already taken' in response.text
+
+
+def test_invalid_symbols_username():
+    data = create_data("\\", "User Test", "test@mail.ru", "1234")
+    response = requests.post(url, params=data, headers=headers)
+
+    assert response.status_code == 200
     assert 'Username - User name must only contain alphanumeric characters, underscore and dash' in response.text
 
 
 def test_empty_username():
-    data = create_data("", "ansafinaa", "qwertyqwertyru", "q")
-    response = requests.post(url, params=data, headers=headers)
-
-    assert 'Username - "" is prohibited as a username for security reasons.' in response.text
-
-
-def test_empty_fullname():
-    data = create_data("user" + random_string(), "", "qwerty@qwerty.ru", "q")
+    data = create_data("", "User Test", "test@mail.ru", "1234")
     response = requests.post(url, params=data, headers=headers)
 
     assert response.status_code == 200
-    assert 'Success' in response.text
-    assert 'You are now logged in. Go back to <a href="..">the top page</a>' in response.text
+    assert 'Username - "" is prohibited as a username for security reasons.' in response.text
 
 
+def test_empty_password():
+    data = create_data("user" + random_string(), "User Test", "test@mail.ru", "")
+    response = requests.post(url, params=data, headers=headers)
+
+    assert response.status_code == 200
+    assert "Password - Password is required" in response.text
+
+
+def test_empty_fullname():
+    data = create_data("user" + random_string(), "", "test@mail.ru", "")
+    response = requests.post(url, params=data, headers=headers)
+
+    assert response.status_code == 200
+    assert "Success" not in response.text
+    assert "You are now logged in." not in response.text
