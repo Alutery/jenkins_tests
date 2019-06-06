@@ -12,8 +12,7 @@ def create_data(j_username, j_password, from_input='/'):
         'from': from_input,
         'Submit': 'Sign in'
     }
-    print(data)
-    print()
+
     return data
 
 
@@ -21,7 +20,6 @@ def test_login_success():
     data = create_data("User1", "1234")
 
     response = requests.post(url, params=data, headers=headers)
-    print(response.text)
 
     assert response.status_code == 200
     assert response.headers['Content-Type'] == 'text/html;charset=utf-8'
@@ -52,7 +50,6 @@ def test_invalid_from():
     data = create_data('User1', '1234', '/++++')
 
     response = requests.post(url, params=data, headers=headers)
-    print(response.text)
 
     assert response.status_code == 404
     assert response.headers['Content-Type'] == 'text/html;charset=iso-8859-1'

@@ -43,8 +43,7 @@ def create_data(username, fullname, email, password1):
         "password2": password1,
         "Submit": "Create account"
     }
-    print(data)
-    print()
+
     return data
 
 
@@ -63,7 +62,7 @@ def test_success():
     assert response.headers['Content-Type'] == 'text/html;charset=utf-8'
     assert "Success" in response.text
 
-    clear_user(username)
+    # clear_user(username)
 
 
 def test_invalid_email():
